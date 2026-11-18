@@ -1,0 +1,1 @@
+async function handler(req) { return { ok: true, name: "from-cli" } }
