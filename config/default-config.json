@@ -1,0 +1,65 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8090,
+    "requestTimeoutMs": 60000,
+    "maxHeaderSizeKb": 16
+  },
+  "database": {
+    "sqliteEnabled": true,
+    "sqliteFile": "storage/system/bloop-system.db",
+    "connections": []
+  },
+  "security": {
+    "corsOrigins": ["*"],
+    "corsMethods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    "corsMaxAge": 86400,
+    "rateLimit": { "max": 600, "windowMs": 60000 },
+    "authRateLimit": { "max": 20, "windowMs": 60000 },
+    "maxBodySize": "50mb",
+    "forceHttpsHeader": false
+  },
+  "realtime": {
+    "enabled": true,
+    "path": "/realtime/v1",
+    "heartbeatIntervalMs": 30000,
+    "maxConnectionsPerProject": 200,
+    "maxMessageRatePerSecond": 60
+  },
+  "storage": {
+    "provider": "local",
+    "maxUploadSize": "50mb",
+    "signedUrlTtlSeconds": 900
+  },
+  "functions": {
+    "defaultTimeoutMs": 10000,
+    "maxTimeoutMs": 60000,
+    "maxConcurrentPerProject": 5,
+    "allowFetch": false
+  },
+  "logging": {
+    "level": "info",
+    "retentionDays": 14,
+    "fileLogging": true
+  },
+  "backups": {
+    "destination": "local",
+    "retention": { "maxCount": 30, "days": 90 },
+    "defaultSchedule": "0 3 * * *",
+    "encryptByDefault": false
+  },
+  "plugins": {
+    "directory": "plugins",
+    "autoEnable": false
+  },
+  "email": {
+    "enabled": false
+  },
+  "observability": {
+    "tracesBufferSize": 1000,
+    "requestLog": true
+  },
+  "admin": {
+    "setupRequired": true
+  }
+}
