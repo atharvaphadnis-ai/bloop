@@ -1,0 +1,141 @@
+# ── Bloop self-hosted stack ──────────────────────────────────────────────────
+# Start everything:        docker compose up -d
+# Start with providers:    docker compose --profile postgres up -d
+#                          docker compose --profile mongo up -d
+#                          docker compose --profile minio up -d
+#                          docker compose --profile badger up -d
+
+services:
+  bloop:
+    build: .
+    container_name: bloop
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      NODE_ENV: production
+      BLOOP_HOST: 0.0.0.0
+      BLOOP_PORT: 8090
+      # Provide a strong master secret in production, or let Bloop generate and
+      # persist one into the storage volume on first start:
+      # BLOOP_SECRET: change-me-to-a-long-random-string
+      BLOOP_SQLITE_ENABLED: "true"
+      BLOOP_LOG_LEVEL: info
+    volumes:
+      - bloop_storage:/app/storage
+      - bloop_backups:/app/backups
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - bloop
+
+  # ── Optional provider databases (activate with --profile <name>) ──────────
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bloop
+      POSTGRES_PASSWORD: change-me
+      POSTGRES_DB: bloop
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bloop"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [bloop]
+
+  mysql:
+    image: mysql:8
+    profiles: ["mysql"]
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: change-me
+      MYSQL_DATABASE: bloop
+      MYSQL_USER: bloop
+      MYSQL_PASSWORD: change-me
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+    networks: [bloop]
+
+  mariadb:
+    image: mariadb:11
+    profiles: ["mariadb"]
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: change-me
+      MARIADB_DATABASE: bloop
+      MARIADB_USER: bloop
+      MARIADB_PASSWORD: change-me
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadbdata:/var/lib/mysql
+    networks: [bloop]
+
+  mongo:
+    image: mongo:7
+    profiles: ["mongo"]
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    # For change-stream CDC run as a single-node replica set:
+    command: ["mongod", "--replSet", "bloop", "--bind_ip_all"]
+    networks: [bloop]
+
+  minio:
+    image: minio/minio:latest
+    profiles: ["minio"]
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: bloopadmin
+      MINIO_ROOT_PASSWORD: change-me-too
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+    networks: [bloop]
+
+  # BadgerDB sidecar — the optional isolated Go compatibility bridge (Badger
+  # is a Go library and cannot be embedded in Node). Only needed if you add a
+  # Badger connection: build it from ./badger-sidecar.
+  badger:
+    build: ./badger-sidecar
+    profiles: ["badger"]
+    restart: unless-stopped
+    ports:
+      - "8089:8089"
+    environment:
+      BADGER_DATA_DIR: /data/badger
+      BADGER_API_KEY: ""
+    volumes:
+      - badgerdata:/data/badger
+    networks: [bloop]
+
+volumes:
+  bloop_storage:
+  bloop_backups:
+  pgdata:
+  mysqldata:
+  mariadbdata:
+  mongodata:
+  miniodata:
+  badgerdata:
+
+networks:
+  bloop:
+    driver: bridge
