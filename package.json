@@ -1,0 +1,49 @@
+{
+  "name": "bloop",
+  "version": "1.0.0",
+  "description": "Bloop — Your backend. Your rules. Your database. A self-hosted Backend-as-a-Service platform (Supabase / Firebase / PocketBase / Appwrite alternative) built on pure Node.js with zero runtime dependencies.",
+  "tagline": "Your backend. Your rules. Your database.",
+  "type": "module",
+  "main": "bloop.js",
+  "bin": {
+    "bloop": "./bloop.js"
+  },
+  "scripts": {
+    "start": "node bloop.js start",
+    "dev": "node bloop.js start --dev",
+    "stop": "node bloop.js stop",
+    "status": "node bloop.js status",
+    "doctor": "node bloop.js doctor",
+    "test": "node --test tests/",
+    "postinstall": "node -e \"console.log('Bloop installed. Run: npm start')\""
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "keywords": [
+    "backend-as-a-service",
+    "baas",
+    "self-hosted",
+    "supabase-alternative",
+    "firebase-alternative",
+    "pocketbase-alternative",
+    "appwrite-alternative",
+    "sqlite",
+    "postgresql",
+    "mysql",
+    "mongodb",
+    "realtime",
+    "serverless-functions"
+  ],
+  "license": "MIT",
+  "dependencies": {},
+  "optionalDependencies": {},
+  "bloop": {
+    "optionalDrivers": {
+      "pg": "npm install pg        # PostgreSQL support",
+      "mysql2": "npm install mysql2    # MySQL / MariaDB support",
+      "mongodb": "npm install mongodb   # MongoDB support",
+      "sharp": "npm install sharp      # Image transformations for Storage"
+    }
+  }
+}
