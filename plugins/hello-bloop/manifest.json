@@ -1,0 +1,10 @@
+{
+  "name": "hello-bloop",
+  "version": "1.0.0",
+  "description": "Example plugin: registers a demo route, listens to platform events and shows the permission system.",
+  "permissions": ["routes", "events", "settings"],
+  "config": {
+    "greeting": { "type": "string", "default": "Hello from a Bloop plugin!" }
+  },
+  "main": "index.js"
+}
